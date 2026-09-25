@@ -2,10 +2,11 @@
 
 Docker Compose stacks and config for the services I self-host on a single Debian 13 machine at home. Caddy terminates HTTPS for the public services. Admin and monitoring tools are only reachable over Tailscale.
 
-TODO: write the "why I built it" in my own words.
+I wanted to properly learn self-hosting, and I liked the idea of giving older hardware a new job. The server is where I try ideas out: if something needs hosting, I can have it running behind Caddy and Tailscale in minutes. It's also a good excuse to spend more time in Linux.
 
-![Screenshot](docs/screenshot.png)
-<!-- TODO: add docs/screenshot.png (e.g. Dockge or Netdata) -->
+| Dockge (stack management) | Netdata (monitoring) |
+|---|---|
+| ![Dockge](docs/dockge.png) | ![Netdata](docs/netdata.png) |
 
 ## What runs here
 
@@ -42,7 +43,7 @@ flowchart LR
 - **One shared network.** Every public service joins the external `caddy_net` network, and Caddy proxies to each one by container name. Only Caddy publishes ports on all interfaces.
 - **Tailscale for admin tools.** Dockge and Netdata bind to the machine's Tailscale IP (`${TAILSCALE_IP}:port`), so they aren't exposed on the LAN or the internet.
 - **DNS workaround.** With MagicDNS on, the host's `/etc/resolv.conf` points at `100.100.100.100`, which bridge containers can't reach. Caddy's ACME lookups failed until I gave the container public resolvers (`dns:` in `caddy/docker-compose.yml`).
-- **mealie-mcp auth.** The MCP server has no auth of its own, so Caddy adds it. A request has to use a random path prefix (`MEALIE_MCP_PATH_SECRET`), or it gets a 404, and send `Authorization: Bearer <MEALIE_MCP_TOKEN>`, or it gets a 401. The container publishes no ports, so Caddy is the only way in. I first used the path prefix on its own and added the token after realising the URL alone was the whole credential.
+- **mealie-mcp auth.** The MCP server has no auth of its own, so Caddy adds it. A request has to use a random path prefix (`MEALIE_MCP_PATH_SECRET`), or it gets a 404, and send `Authorization: Bearer <MEALIE_MCP_TOKEN>`, or it gets a 401. The container publishes no ports, so Caddy is the only way in.
 - **Dockge paths.** Dockge mounts the stacks directory at the same path it has on the host. It runs `docker compose` against the host daemon, so relative volume paths in the stacks only resolve if the paths match.
 
 ## Stack
@@ -84,4 +85,4 @@ To use your own domain, replace `example.com` in `caddy/config/Caddyfile`, `meal
 
 ## What I'd do differently
 
-TODO: write this myself.
+Secure every endpoint properly from day one. I first protected the Mealie MCP endpoint with a secret path alone, and only added the bearer token after realising the URL on its own was the whole credential.
