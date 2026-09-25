@@ -1,0 +1,10 @@
+services:
+  web:
+    ports: !override []
+    networks:
+      - default
+      - caddy_net
+
+networks:
+  caddy_net:
+    external: true

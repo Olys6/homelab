@@ -1,0 +1,31 @@
+services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    # Host /etc/resolv.conf is Tailscale-managed (100.100.100.100, only reachable
+    # via tailscale0) - bridge containers can't reach it, so ACME/cert lookups
+    # fail with SERVFAIL unless we point this container at real public resolvers.
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    # Supplies {$VARS} referenced in the Caddyfile.
+    env_file:
+      - ./.env
+    volumes:
+      - ./config:/etc/caddy
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - caddy_net
+
+networks:
+  caddy_net:
+    external: true
+
+volumes:
+  caddy_data:
+  caddy_config:

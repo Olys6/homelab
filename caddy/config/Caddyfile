@@ -1,0 +1,26 @@
+opengym.example.com {
+	reverse_proxy opengym-web-1:80
+}
+
+mealie.example.com {
+	reverse_proxy mealie:9000
+}
+
+# The MCP server has no auth of its own, so Caddy requires both an
+# unguessable path prefix and a bearer token. Wrong path: 404. Wrong or
+# missing token: 401.
+mealie-mcp.example.com {
+	@authed header Authorization "Bearer {$MEALIE_MCP_TOKEN}"
+	handle_path /{$MEALIE_MCP_PATH_SECRET}/* {
+		handle @authed {
+			reverse_proxy mealie-mcp:3000
+		}
+		respond 401
+	}
+	respond 404
+}
+
+# Self-Dev Hub (separate repo). The app handles its own login.
+hub.example.com {
+	reverse_proxy self-dev-hub:3000
+}

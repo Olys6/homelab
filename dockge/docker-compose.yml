@@ -1,0 +1,23 @@
+services:
+  dockge:
+    image: louislam/dockge:1
+    container_name: dockge
+    restart: unless-stopped
+    ports:
+      # Bound to the Tailscale interface only - not reachable over LAN/WAN.
+      - "${TAILSCALE_IP}:5001:5001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mounted at identical host/container paths: Dockge shells out to
+      # `docker compose` against the host daemon (Docker-outside-of-Docker),
+      # so relative-path volumes in managed stacks only resolve correctly
+      # if the path looks the same from inside this container as it does
+      # on the host. Also makes the stacks/ symlinks resolvable in here.
+      - ${DOCKER_ROOT}:${DOCKER_ROOT}
+      - ./data:/app/data
+      # The image bundles an old Compose CLI plugin (2.34) that can't parse
+      # some newer compose files (`include:` + top-level merges need a newer
+      # Compose). Use the host's plugin binary instead.
+      - /usr/libexec/docker/cli-plugins/docker-compose:/usr/libexec/docker/cli-plugins/docker-compose:ro
+    environment:
+      - DOCKGE_STACKS_DIR=${DOCKER_ROOT}/stacks

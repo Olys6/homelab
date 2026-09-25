@@ -1,0 +1,18 @@
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:latest
+    container_name: mealie
+    restart: unless-stopped
+    volumes:
+      - ./mealie-data:/app/data/
+    environment:
+      TZ: ${TZ:-UTC}
+      BASE_URL: https://mealie.example.com
+      ALLOW_SIGNUP: "false"
+    networks:
+      - default
+      - caddy_net
+
+networks:
+  caddy_net:
+    external: true

@@ -1,0 +1,31 @@
+# Real env files and secrets (examples are committed)
+.env
+.env.*
+!.env.example
+*.secret
+.*-secret
+.*password*
+
+# Service data, volumes, databases
+*/data/
+mealie/mealie-data/
+opengym/media/
+opengym/coach-auth/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+
+# Upstream source trees cloned next to their compose files
+mealie-mcp/mealie-mcp-ts/
+opengym/*
+!opengym/docker-compose.override.yml
+!opengym/.env.example
+
+# Backups and logs
+*.bak
+*.bak-*
+*.backup
+*.tar
+*.tar.gz
+*.log

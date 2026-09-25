@@ -1,0 +1,25 @@
+services:
+  mealie-mcp:
+    # Clone of https://github.com/counterbeing/mealie-mcp-ts (not included here):
+    #   git clone https://github.com/counterbeing/mealie-mcp-ts.git
+    build: ./mealie-mcp-ts
+    container_name: mealie-mcp
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      MEALIE_URL: http://mealie:9000
+      MCP_TRANSPORT: http
+      PORT: 3000
+      ALLOWED_HOSTS: localhost,127.0.0.1,mealie-mcp.example.com
+    # No published ports: the only way in is through Caddy on caddy_net,
+    # which enforces the path prefix and bearer token.
+    networks:
+      - mealie_default
+      - caddy_net
+
+networks:
+  mealie_default:
+    external: true
+  caddy_net:
+    external: true
